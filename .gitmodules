@@ -1,0 +1,3 @@
+[submodule "popnet"]
+	path = popnet
+	url = git@github.com:oxalica/popnet.git
