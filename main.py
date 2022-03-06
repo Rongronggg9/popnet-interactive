@@ -1,20 +1,22 @@
-from attr import define
-from typing import Optional
+from __future__ import annotations
 from random import randrange, random
 import subprocess
 import os
 import shutil
+
+
 # from collections import defaultdict
 # from functools import partial
 
 
-@define
 class Arg:
-    key: str
-    description: str
-    default: str
-    default_description: Optional[str] = None
-    value: Optional[str] = None
+    def __init__(self, key: str, description: str, default: str = None, default_description: str = None,
+                 value: str = None):
+        self.key = key
+        self.description = description
+        self.default = default
+        self.default_description = default_description
+        self.value = value
 
 
 args = {
