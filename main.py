@@ -22,7 +22,7 @@ class Arg:
 args = {
     'array_size': Arg(key='-A', description='array size, the size of the network in each dimension.',
                       default='9', default_description='9 routers on each dimension'),
-    'dimension': Arg(key='-c', description='cube dimension',
+    'dimension': Arg(key='-c', description='cube dimension, WARNING: 3D is not supported yet.',
                      default='2', default_description='2D network'),
     'channel ': Arg(key='-V', description='virtual channel number', default='3'),
     'i_buffer': Arg(key='-B', description='input buffer size', default='12'),
@@ -65,7 +65,8 @@ def gen_packet(array_size: int, time: float, sx: int, sy: int, sz: int = None, d
         f'{time} {sx} {sy} {sz} {dx} {dy} {dz} {packet_size}'
 
 
-def gen_trace(array_size: int, dimension: int, injection_rate: float, packet_size: int, cycles: int):
+def gen_trace(array_size: int, dimension: int, injection_rate: float, packet_size: int, cycles: int,
+              add_jitter: bool = True):
     """
     Generate trace
     :param array_size: the size of the network in each dimension
@@ -73,6 +74,7 @@ def gen_trace(array_size: int, dimension: int, injection_rate: float, packet_siz
     :param injection_rate: injection rate
     :param packet_size: packet size (number of flits)
     :param cycles: simulation cycles
+    :param add_jitter: add jitter or not
     :return: a string of trace
     """
     if os.path.exists('trace/'):
@@ -86,7 +88,7 @@ def gen_trace(array_size: int, dimension: int, injection_rate: float, packet_siz
             for z in (range(array_size) if dimension == 3 else [None]):
                 packet_l = []
                 for time in range(1, cycles + 1, interval):
-                    jitter = random() * interval
+                    jitter = random() * interval if add_jitter else 0
                     packet = gen_packet(array_size, time + jitter, x, y, z,
                                         packet_size=packet_size, e_notation=True)
                     packet_l.append(packet)
@@ -118,10 +120,13 @@ for arg in args.values():
         arg.value = arg.default
 
 _injection_rate = float(input('injection rate (float, default: 0.01): ') or '0.01')
-_packet_size = int(input('packet size (int, default=5): ') or '5')
+_packet_size = int(input('packet size (int, default: 5): ') or '5')
+_add_jitter = input('add jitter or not? (bool, default: 1): ') or '1'
+_add_jitter = True if _add_jitter.lower().strip() in {'1', 'true'} else False
 
 gen_trace(array_size=int(args['array_size'].value), dimension=int(args['dimension'].value),
-          injection_rate=_injection_rate, packet_size=_packet_size, cycles=int(args['cycles'].value))
+          injection_rate=_injection_rate, packet_size=_packet_size, cycles=int(args['cycles'].value),
+          add_jitter=_add_jitter)
 
 popnet = subprocess.Popen(['popnet/popnet', *(f'{arg.key} {arg.value}' for arg in args.values()), '-I',
                            'trace/bench'],
