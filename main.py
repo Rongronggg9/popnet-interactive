@@ -5,10 +5,6 @@ import os
 import shutil
 
 
-# from collections import defaultdict
-# from functools import partial
-
-
 class Arg:
     def __init__(self, key: str, description: str, default: str = None, default_description: str = None,
                  value: str = None):
@@ -60,7 +56,7 @@ def gen_packet(array_size: int, time: float, sx: int, sy: int, sz: int = None, d
         dz = randrange(array_size) if dimension == 3 else None
     else:
         dz = dz if dimension == 3 else None
-    time = format(time, '.4e') if e_notation else int(time)
+    time = format(time, '.4e') if e_notation else time
     return f'{time} {sx} {sy} {dx} {dy} {packet_size}' if dimension == 2 else \
         f'{time} {sx} {sy} {sz} {dx} {dy} {dz} {packet_size}'
 
